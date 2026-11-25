@@ -307,16 +307,99 @@ function askNext(){
   say(guided?prompts[guided]:"El primer perfil está listo. Agrega otros perfiles si los necesitas o genera la cotización.");
 }
 function amount(text){
-  const match=text.match(/^\s*\$?\s*(\d[\d,.]*)\s*(millones?|millon|mil)?(?:\s*(?:mxn|pesos|equipos?|estaciones?))?\s*$/i);
+  const match=text.match(/^\s*\$?\s*(\d[\d,.]*)\s*(millones?|millon|mil)?(?:\s*(?:mxn|pesos|equipos?|estaciones?|laptops?|portatiles?|escritorios?))?\s*$/i);
   if(!match)return null;
   const scale=!match[2]?1:match[2]==="mil"?1000:1000000;
   const digits=scale>1&&/^\d+,\d{1,2}$/.test(match[1])?match[1].replace(",","."):match[1].replace(/,/g,"");
   const result=Number(digits)*scale;
   return Number.isSafeInteger(result)?result:null;
 }
+function interpretMix(text){
+  const typePattern="escritorios?|laptops?|portatiles?|portatil";
+  const typeOf=word=>word.startsWith("escritorio")?"desktop":"laptop";
+  const groupPattern=new RegExp("\\b(\\d+)\\s+(?:(?:equipos|computadoras|pcs)\\s+(?:de\\s+)?)?("+typePattern+")\\b","g");
+  const groups=[...text.matchAll(groupPattern)].map(match=>({type:typeOf(match[2]),qty:Number(match[1]),start:match.index,end:match.index+match[0].length}));
+  if(!groups.length)return null;
+  if(groups.some(group=>group.qty<1||group.qty>100000))return {error:"Indica entre 1 y 100,000 equipos de cada tipo."};
+  const total=[...text.matchAll(/\b(\d+)\s+(?:equipos|estaciones|puestos|computadoras)\b(?!\s+(?:de\s+)?(?:escritorios?|laptops?|portatiles?|portatil)\b)/g)][0];
+  if(total&&Number(total[1])!==groups.reduce((sum,group)=>sum+group.qty,0)){
+    return {error:"El total de equipos no coincide con las cantidades de escritorios y laptops. Confirma cuántos necesitas de cada tipo."};
+  }
+  const budgetMatch=text.match(/\bpresupuesto\s*(?:(?:de|es)\s*)?[:=]?\s*\$?\s*(\d[\d,.]*(?:\s*(?:millones|millon|mil)\b)?)/);
+  const budget=budgetMatch?amount(budgetMatch[1].replace(/[,.]$/,"")):null;
+  if(budgetMatch&&(!budget||budget>1e9))return {error:"Indica un presupuesto válido en pesos mexicanos."};
+  const monitor=text.match(/\bmonitor(?:es)?\b/);
+  let monitoredGroup=-1;
+  let monitoredQty=0;
+  let monitorsPerUnit=1;
+  if(monitor&&!/\bsin\s+(?:un\s+)?monitor(?:es)?\b/.test(text)){
+    if([...text.matchAll(/\bmonitor(?:es)?\b/g)].length>1){
+      return {error:"Indica una sola regla de monitores, por ejemplo: «La mitad de los escritorios con un monitor»."};
+    }
+    const before=text.slice(0,monitor.index);
+    const after=text.slice(monitor.index+monitor[0].length);
+    const explicitAfter=after.match(new RegExp("^\\s+(?:externos?\\s+)?(?:para|en)\\s+(?:(?:los|las|equipos de|todas las|todos los)\\s+)*("+typePattern+")\\b"));
+    const mentions=[...before.matchAll(new RegExp("\\b("+typePattern+")\\b","g"))];
+    const nearest=mentions.at(-1);
+    const latestGroup=groups.findLastIndex(group=>group.end<=monitor.index);
+    if(groups.length>1&&!explicitAfter&&(!nearest||latestGroup<0||
+      (nearest.index<groups[latestGroup].end&&/^\s*[,;.]/.test(before.slice(groups[latestGroup].end))))){
+      return {error:"¿Para cuántos escritorios o laptops necesitas monitor? Indica también el tipo."};
+    }
+    const wantedType=explicitAfter?typeOf(explicitAfter[1]):nearest?typeOf(nearest[1]):null;
+    const matches=groups.map((group,index)=>group.type===wantedType?index:-1).filter(index=>index>=0);
+    monitoredGroup=groups.length===1?0:matches.length===1?matches[0]:latestGroup;
+    if(monitoredGroup<0)return {error:"¿Para cuántos escritorios o laptops necesitas monitor? Indica también el tipo."};
+    const group=groups[monitoredGroup];
+    const clauseStart=latestGroup>=0?groups[latestGroup].end:0;
+    const clauseBefore=before.slice(clauseStart);
+    const half=/\b(?:la\s+mitad|50\s*%)/.test(clauseBefore)||/^\s+para\s+la\s+mitad\b/.test(after);
+    const perUnit=after.match(/\bpor\s+(?:cada\s+)?(?:equipo|estacion|escritorio|laptop|portatil)\b|\bpara\s+cada\b/);
+    const monitorCount=clauseBefore.match(/\b(\d+|dos|un)\s*$/)?.[1];
+    const assignedCount=after.match(/\b(?:para|en)\s+(\d+)\b/)?.[1]??clauseBefore.match(/\b(\d+)\s+(?:de\s+(?:los|las)|(?:equipos|escritorios|laptops)\s+con)\b/)?.[1];
+    const count=monitorCount==="dos"?2:monitorCount==="un"?1:monitorCount?Number(monitorCount):null;
+    if(perUnit)monitorsPerUnit=count??1;
+    if(half&&group.qty%2)return {error:"La mitad de "+group.qty+" equipos no es un número entero. Dime cuántos deben llevar monitor."};
+    monitoredQty=half?group.qty/2:assignedCount?Number(assignedCount):!perUnit&&count!==null?count:group.qty;
+    if(monitoredQty<1||monitoredQty>group.qty||monitorsPerUnit<1||monitorsPerUnit>2){
+      return {error:"Revisa la cantidad solicitada de monitores. Puedes incluir hasta dos por equipo."};
+    }
+  }
+  const profiles=groups.flatMap((group,index)=>{
+    const label=group.type==="desktop"?"Escritorios":"Laptops";
+    const row={...blankProfile(),name:label,type:group.type,tier:"standard",ram:16,ssd:512,accessoriesConfirmed:true};
+    if(index!==monitoredGroup)return [{...row,qty:group.qty}];
+    const rows=[{...row,name:label+" con monitor",qty:monitoredQty,monitor:monitorsPerUnit}];
+    if(group.qty>monitoredQty)rows.push({...row,name:label+" sin monitor",qty:group.qty-monitoredQty});
+    return rows;
+  });
+  if(/\b(?:ram|ssd|teclados?|mouse|raton|diademas?|headsets?)\b/.test(text)){
+    return {profiles,budget,review:true};
+  }
+  return {profiles,budget};
+}
 function capture(message){
   const norm=message.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"");
   if(/^(?:generar|ver|calcular) (?:la )?(?:cotizacion|propuesta)$|^cotizar$/.test(norm)){generate(true);return;}
+  const mix=!guided||/\b(?:necesito|requiero|presupuesto)\b/.test(norm)
+    ?interpretMix(norm.replace(/\bescritoprios?\b/g,"escritorio")):null;
+  if(mix){
+    if(mix.error){say(mix.error);return;}
+    const previous=data;
+    data={...previous,company:previous.demo||!previous.company?"Solicitud por chat":previous.company,
+      city:previous.demo?"":previous.city,budget:mix.budget??(previous.demo?"":previous.budget),demo:false,profiles:mix.profiles};
+    guided=null;
+    invalidate();persist();renderCase();showTab(false);
+    const summary=mix.profiles.map(row=>row.qty+" "+row.name.toLowerCase()).join(", ");
+    say("Capturé "+summary+(data.budget?" con presupuesto de "+money(Number(data.budget))+" MXN.":". Falta el presupuesto.")+
+      " Usé 16 GB de RAM y SSD de 512 GB como configuración inicial.");
+    if(mix.review){
+      say("Revisa en Datos del caso la RAM, el SSD y cualquier accesorio adicional que hayas mencionado antes de calcular.");
+    }else if(data.budget){
+      generate(true);
+    }
+    return;
+  }
   if(guided){
     const field=guided;
     const row=data.profiles[0];
@@ -361,7 +444,7 @@ function capture(message){
   }
   if(changed.length){invalidate();persist();renderCase();showTab(false);say("Actualicé "+changed.join(" y ")+". Completa tus perfiles y genera la cotización.");return;}
   if(/partner|garantia|stock|inventario/.test(norm)){say("Descarga la solicitud para que el partner Dell confirme precio, disponibilidad y garantía.");return;}
-  say("Puedo capturar la cantidad de equipos y tu presupuesto. Prueba «100 equipos y presupuesto de 900 mil» o selecciona Guiarme paso a paso.");
+  say("Puedo separar escritorios, laptops y monitores. Prueba «38 escritorios, 19 laptops, la mitad de los escritorios con monitor y presupuesto de 600 mil».");
 }
 function replaceCase(next,message){
   if(!data.demo&&data.company&&!window.confirm("¿Reemplazar el caso actual?"))return false;
