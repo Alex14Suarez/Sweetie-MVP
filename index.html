@@ -1,0 +1,366 @@
+<!doctype html>
+<html lang="es-MX">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="description" content="Sweetie estima el costo de renovar estaciones de trabajo de call centers.">
+<title>Sweetie · Sugar Cube</title>
+<style>
+:root{color-scheme:light;--navy:#17233e;--muted:#53617a;--blue:#274bc9;--indigo:#203981;--line:#dbe3f0;--paper:#fff;--bg:#f2f5fb;--soft:#eef3ff;--good:#155c47}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--navy);font:15px/1.5 "Segoe UI",system-ui,sans-serif}button,input,select{font:inherit}button{cursor:pointer}button:focus-visible,input:focus-visible,select:focus-visible,summary:focus-visible{outline:3px solid #6e8bff;outline-offset:3px}button:disabled{opacity:.55;cursor:default}
+header{background:#fff;border-bottom:1px solid var(--line)}.top,main{max-width:1250px;margin:auto;padding:0 24px}.top{min-height:70px;display:flex;align-items:center;justify-content:space-between;gap:14px}.brand{display:flex;align-items:center;gap:11px;font-weight:750;font-size:21px;letter-spacing:-.035em}.mark,.avatar{display:grid;place-items:center;background:#dfe8ff;color:var(--indigo);font-weight:800}.mark{width:37px;height:37px;border-radius:11px}.brand span:last-child{font-size:12px;font-weight:650;color:var(--muted);letter-spacing:.03em}.top-actions,.actions,.quick,.tabs{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+main{padding-bottom:38px}.intro{margin:26px 0 19px;padding:28px 31px;background:linear-gradient(110deg,#17264c,#284a9f);color:#fff;border-radius:20px}.intro p{margin:7px 0 0;color:#e7edff}.intro h1{font-size:clamp(27px,4vw,39px);line-height:1.13;margin:0;letter-spacing:-.047em}.columns{display:grid;grid-template-columns:minmax(0,1.06fr) minmax(0,1fr);align-items:start;gap:18px}.panel{background:#fff;border:1px solid var(--line);border-radius:17px;min-width:0;overflow:hidden}.panel-head{padding:17px 18px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center;gap:12px}.panel h2{font-size:18px;margin:0;letter-spacing:-.02em}.caption{font-size:12px;color:var(--muted);margin:3px 0 0}.mode{font-size:11px;font-weight:700;background:var(--soft);color:var(--indigo);border-radius:20px;padding:5px 10px;white-space:nowrap}.log{min-height:265px;height:340px;overflow:auto;padding:20px 16px;display:flex;flex-direction:column;gap:15px}.msg{display:flex;gap:9px;align-items:flex-start}.msg.user{justify-content:flex-end}.avatar{border-radius:10px;flex:0 0 29px;height:29px;font-size:13px}.bubble{margin:0;padding:10px 13px;border-radius:3px 12px 12px;background:#f1f4fa;white-space:pre-wrap;overflow-wrap:anywhere;max-width:91%}.user .bubble{background:#e4ecff;border-radius:12px 3px 12px 12px}
+.composer{padding:12px 16px 16px;border-top:1px solid var(--line)}.quick{margin-bottom:10px}.send{display:flex;gap:8px}.send input{flex:1;min-width:0}.button{background:#fff;border:1px solid var(--line);border-radius:9px;color:var(--navy);padding:7px 11px;font-weight:650;font-size:13px}.button:hover{background:var(--soft)}.primary{background:var(--blue);border-color:var(--blue);color:white}.primary:hover{background:#203caa}.chip{border-radius:20px;font-size:12px;color:var(--indigo)}input,select{border:1px solid #c8d3e5;border-radius:8px;min-height:38px;padding:7px 9px;background:#fff;color:var(--navy);width:100%}label{display:grid;gap:4px;font-size:12px;font-weight:650}label small{color:var(--muted);font-weight:400}.casebody,.report{padding:16px 18px}.tabs{padding:10px 18px 0}.tabs button[aria-pressed=true]{background:var(--soft);color:var(--indigo);border-color:#b5c7fb}.grid{display:grid;grid-template-columns:1fr 1fr;gap:11px}.profiles{margin:14px 0}.profile{padding:12px 0;border-top:1px solid var(--line)}.profile:first-of-type{margin-top:8px}.profile-head{display:flex;gap:8px;align-items:center;margin-bottom:8px;justify-content:space-between}.profile-head input{max-width:240px;font-weight:650}.profile-head button{min-width:70px}.actions{margin-top:14px}.report h3{font-size:16px;margin:16px 0 7px}.report h3:first-child{margin-top:0}.report p{margin:8px 0}.metrics{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px;margin:14px 0}.metric{background:var(--soft);border-radius:10px;padding:9px 8px}.metric strong{display:block;font-size:clamp(12px,1.5vw,18px);white-space:nowrap}.metric span{display:block;font-size:11px;color:var(--muted)}.table-wrap{overflow:auto}table{border-collapse:collapse;width:100%;font-size:12px;text-align:left;min-width:345px}th,td{padding:8px 6px;border-bottom:1px solid var(--line);vertical-align:top}th{color:var(--muted)}details{margin:12px 0}summary{cursor:pointer;font-weight:650;color:var(--indigo)}.notice{background:#f1f5ff;padding:9px 11px;border-radius:8px;color:var(--indigo);font-size:12px}.error{color:#a21c2c;font-size:13px}.success{color:var(--good);font-size:13px}[hidden]{display:none!important}.sr{position:absolute;width:1px;height:1px;padding:0;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+@media(max-width:850px){.columns{grid-template-columns:1fr}.log{height:300px}}@media(max-width:490px){.top,main{padding-left:12px;padding-right:12px}.intro{padding:20px}.panel-head,.casebody,.report{padding-left:12px;padding-right:12px}.brand span:last-child{display:none}.log{height:280px}.top-actions{justify-content:flex-end}.metric{padding:7px 5px}}
+@media print{header,.intro,#chat,.tabs,#editor,#review .actions,#decision,.mode{display:none!important}body,main,.panel{background:white;padding:0;margin:0;border:0}.columns{display:block}.report{padding:0}}
+</style>
+</head>
+<body>
+<header><div class="top"><div class="brand"><span class="mark" aria-hidden="true">◈</span>Sweetie <span>SUGAR CUBE</span></div><div class="top-actions"><button class="button" id="reset">Nuevo caso</button><button class="button" id="demo">Cargar ejemplo</button></div></div></header>
+<main>
+  <section class="intro"><h1>Planea tu renovación de equipos</h1><p>Compara seguir reparando, renovar con Dell reacondicionado o comprar equipo nuevo.</p></section>
+  <div class="columns">
+    <section class="panel" id="chat" aria-labelledby="chat-title">
+      <div class="panel-head"><div><h2 id="chat-title">Asistente Sweetie</h2><p class="caption">Captura guiada para call centers y BPO</p></div><span class="mode">Modo guiado</span></div>
+      <div id="log" class="log" role="log" aria-label="Conversación con Sweetie"></div>
+      <div class="composer">
+        <div class="quick"><button class="button chip" id="guide">Guiarme paso a paso</button><button class="button chip" id="analyse">Generar propuesta</button></div>
+        <form class="send" id="chat-form"><label class="sr" for="message">Mensaje para Sweetie</label><input id="message" placeholder="Ej. Presupuesto de 900 mil para 100 estaciones" maxlength="600" autocomplete="off" required><button class="button primary">Enviar</button></form>
+      </div>
+    </section>
+    <section class="panel" id="workspace" aria-labelledby="case-title">
+      <div class="panel-head"><div><h2 id="case-title">Caso de renovación</h2><p class="caption" id="case-caption">Datos editables del call center</p></div><span class="mode" id="case-mode">Ejemplo</span></div>
+      <div class="tabs" role="group" aria-label="Vista del caso"><button class="button" id="edit-tab" aria-pressed="true">Datos del caso</button><button class="button" id="result-tab" aria-pressed="false" disabled>Propuesta</button></div>
+      <form id="editor" class="casebody">
+        <div class="grid">
+          <label>Empresa<input name="company" maxlength="100" placeholder="Nombre del call center" required></label>
+          <label>Ciudad o sede<input name="city" maxlength="100" placeholder="Ej. Naucalpan"></label>
+          <label>Presupuesto de compra (MXN)<input name="budget" type="number" min="1" max="1000000000" step="1" required></label>
+          <label>Horizonte de evaluación (meses)<input name="months" type="number" min="1" max="60" step="1" required></label>
+        </div>
+        <div class="profiles"><h2>Perfiles de estación</h2><p class="caption">Agrupa equipos con el mismo uso, costos y prioridad.</p><div id="profiles"></div><button type="button" class="button" id="add">+ Agregar perfil</button></div>
+        <p class="notice" id="assumptions">Captura el costo mensual de mantener cada estación, incluidos los paros si los puedes estimar. Para las opciones Dell, usa costos comparables que incluyan los servicios aplicables.</p>
+        <div class="actions"><button class="button primary" type="submit">Calcular propuesta</button></div>
+        <p id="edit-status" class="error" role="status"></p>
+      </form>
+      <section id="review" class="report" hidden></section>
+    </section>
+  </div>
+</main>
+<script>
+"use strict";
+const byId = id => document.getElementById(id);
+const currency = new Intl.NumberFormat("es-MX", {style:"currency", currency:"MXN", maximumFractionDigits:0});
+const money = number => currency.format(number);
+const profiles = [
+  {name:"Agente de atención", qty:75, priority:"alta", repair:330, refurb:7800, fresh:11300, upkeep:60, freshUpkeep:40, spec:"OptiPlex, Core i5 / 16 GB / SSD 512 GB"},
+  {name:"Supervisor", qty:15, priority:"media", repair:410, refurb:9600, fresh:13700, upkeep:80, freshUpkeep:50, spec:"OptiPlex, Core i5 / 16 GB / SSD 512 GB"},
+  {name:"Analista QA", qty:10, priority:"baja", repair:190, refurb:10800, fresh:15500, upkeep:90, freshUpkeep:60, spec:"OptiPlex, Core i7 / 16 GB / SSD 512 GB"}
+];
+const blankProfile = () => ({name:"",qty:"",priority:"media",repair:"",refurb:"",fresh:"",upkeep:"",freshUpkeep:"",spec:""});
+const demo = () => ({company:"Contacto Valle (simulado)",city:"Naucalpan, Estado de México",budget:900000,months:36,demo:true,profiles:structuredClone(profiles)});
+const freshCase = () => ({company:"",city:"",budget:"",months:36,demo:false,profiles:[blankProfile()]});
+const storageKey = "sweetie-sugarcube-v1";
+function loadCase(){
+  try {
+    const saved = JSON.parse(localStorage.getItem(storageKey));
+    if (Array.isArray(saved?.profiles) && saved.profiles.length) return saved;
+  } catch {}
+  return demo();
+}
+let data = loadCase();
+let report = null;
+let guideField = null;
+let startedAt = Date.now();
+let feedback = "";
+function persist(){
+  try {localStorage.setItem(storageKey, JSON.stringify(data));} catch {}
+}
+function invalidate(){
+  report = null;
+  feedback = "";
+  byId("result-tab").disabled = true;
+}
+function escapeHtml(value){
+  return String(value ?? "").replace(/[&<>"']/g, character => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[character]));
+}
+function appendMessage(text, sender="assistant"){
+  const wrap = document.createElement("div");
+  wrap.className = "msg " + sender;
+  if (sender === "assistant"){
+    const avatar = document.createElement("span");
+    avatar.className = "avatar";
+    avatar.setAttribute("aria-hidden","true");
+    avatar.textContent = "S";
+    wrap.append(avatar);
+  }
+  const bubble = document.createElement("p");
+  bubble.className = "bubble";
+  bubble.textContent = text;
+  wrap.append(bubble);
+  byId("log").append(wrap);
+  byId("log").scrollTop = byId("log").scrollHeight;
+}
+const fieldNames = {qty:"Estaciones",repair:"Reparar · mensual (MXN)",refurb:"Reacondicionado · compra (MXN)",fresh:"Nuevo · compra (MXN)",upkeep:"Reacondicionado · mensual (MXN)",freshUpkeep:"Nuevo · mensual (MXN)"};
+function numberField(key, value){
+  return '<label>'+fieldNames[key]+'<input data-field="'+key+'" type="number" required min="'+(key==="qty"||key==="refurb"||key==="fresh"?1:0)+'" max="'+(key==="qty"?100000:10000000)+'" step="1" value="'+escapeHtml(value)+'"></label>';
+}
+function renderCase(){
+  for (const key of ["company","city","budget","months"]) byId("editor").elements[key].value = data[key];
+  byId("case-mode").textContent = data.demo ? "Ejemplo simulado" : "Caso editable";
+  byId("profiles").innerHTML = data.profiles.map((profile,index) => `
+    <section class="profile" data-index="${index}">
+      <div class="profile-head"><label class="sr" for="profile-${index}">Nombre del perfil ${index+1}</label><input id="profile-${index}" data-field="name" placeholder="Nombre del perfil" maxlength="75" required value="${escapeHtml(profile.name)}">
+      <button type="button" class="button" data-remove ${data.profiles.length===1?"disabled":""}>Quitar</button></div>
+      <div class="grid">
+        ${numberField("qty",profile.qty)}
+        <label>Prioridad operativa<select data-field="priority">${["alta","media","baja"].map(value=>`<option ${profile.priority===value?"selected":""}>${value}</option>`).join("")}</select></label>
+        ${["repair","refurb","fresh","upkeep","freshUpkeep"].map(key=>numberField(key,profile[key])).join("")}
+      </div>
+      <label style="margin-top:8px">Configuración o requisitos<input data-field="spec" maxlength="150" placeholder="Ej. 16 GB de RAM y SSD de 512 GB" value="${escapeHtml(profile.spec)}"></label>
+    </section>`).join("");
+}
+function showTab(result){
+  byId("review").hidden = !result;
+  byId("editor").hidden = result;
+  byId("edit-tab").setAttribute("aria-pressed", !result);
+  byId("result-tab").setAttribute("aria-pressed", result);
+  byId("edit-tab").style.background = result ? "" : "var(--soft)";
+  byId("result-tab").style.background = result ? "var(--soft)" : "";
+}
+function replaceCase(next, message){
+  data = next;
+  feedback = "";
+  guideField = null;
+  startedAt = Date.now();
+  invalidate();
+  persist();
+  renderCase();
+  showTab(false);
+  byId("log").replaceChildren();
+  byId("edit-status").textContent = "";
+  appendMessage(message);
+}
+function calculate(input){
+  const period = Number(input.months);
+  const budget = Number(input.budget);
+  const priority = {alta:0,media:1,baja:2};
+  const rows = input.profiles.map(profile => {
+    const repair = Number(profile.repair) * period;
+    const refurb = Number(profile.refurb) + Number(profile.upkeep) * period;
+    const fresh = Number(profile.fresh) + Number(profile.freshUpkeep) * period;
+    return { ...profile, qty:Number(profile.qty), repair, refurb, fresh, replace:0, option:"", savings:0, spend:0 };
+  });
+  const totals = rows.reduce((acc,row) => {
+    acc.qty += row.qty;
+    for (const scenario of ["repair","refurb","fresh"]) acc[scenario] += row[scenario] * row.qty;
+    return acc;
+  },{qty:0,repair:0,refurb:0,fresh:0});
+  let remaining = budget;
+  rows.sort((a,b) => priority[a.priority]-priority[b.priority] ||
+    (b.repair-Math.min(b.refurb,b.fresh))-(a.repair-Math.min(a.refurb,a.fresh)));
+  for (const row of rows){
+    const options = [
+      {label:"Dell reacondicionado", total:row.refurb, price:Number(row.refurb)-Number(row.upkeep)*period},
+      {label:"Dell nuevo", total:row.fresh, price:Number(row.fresh)-Number(row.freshUpkeep)*period}
+    ].sort((a,b) => a.total-b.total || a.price-b.price);
+    row.choices = [];
+    for (const option of options){
+      if (option.total >= row.repair) continue;
+      const count = Math.min(row.qty-row.replace, Math.floor(remaining/option.price));
+      if (!count) continue;
+      remaining -= count * option.price;
+      row.replace += count;
+      row.spend += count * option.price;
+      row.savings += count * (row.repair-option.total);
+      row.choices.push(count+" "+option.label);
+    }
+    row.option = row.choices.join(" + ") || "Seguir reparando";
+  }
+  const spend = budget-remaining;
+  const savings = rows.reduce((sum,row)=>sum+row.savings,0);
+  const replaced = rows.reduce((sum,row)=>sum+row.replace,0);
+  return {period,budget,rows,totals,spend,savings,replaced,tco:totals.repair-savings};
+}
+function renderReport(){
+  const {period,budget,rows,totals,spend,savings,replaced,tco} = report;
+  byId("review").innerHTML = `
+    <h3>${escapeHtml(data.company)}</h3>
+    <p class="caption">${escapeHtml(data.city || "Sede por confirmar")} · ${totals.qty} estaciones · horizonte de ${period} meses · importes en MXN</p>
+    <div class="metrics"><div class="metric"><span>Renovar ahora</span><strong>${replaced} de ${totals.qty}</strong></div><div class="metric"><span>Inversión de compra</span><strong>${money(spend)}</strong></div><div class="metric"><span>Ahorro estimado</span><strong>${money(savings)}</strong></div></div>
+    <p>${replaced ? `El plan cuesta ${money(tco)} en ${period} meses frente a ${money(totals.repair)} si mantienes todos los equipos. Quedan ${money(budget-spend)} de presupuesto de compra.` : "Con los costos y el presupuesto capturados, seguir reparando es la recomendación económica. Si un equipo pone en riesgo la operación, revisa el costo de los paros y su prioridad."}</p>
+    <h3>Qué equipos renovar primero</h3>
+    <div class="table-wrap"><table><thead><tr><th>Perfil</th><th>Acción</th><th>Inversión</th><th>Ahorro</th></tr></thead><tbody>${rows.map(row=>`<tr><td><strong>${escapeHtml(row.name)}</strong><br>${row.qty} · prioridad ${row.priority}</td><td>${row.option}${row.replace>0 && row.replace<row.qty?"<br>"+(row.qty-row.replace)+" siguen en reparación":""}</td><td>${money(row.spend)}</td><td>${money(row.savings)}</td></tr>`).join("")}</tbody></table></div>
+    <h3>Costo por estación a ${period} meses</h3>
+    <div class="table-wrap"><table><thead><tr><th>Perfil</th><th>Reparar</th><th>Reacond.</th><th>Nuevo</th></tr></thead><tbody>${rows.map(row=>`<tr><td>${escapeHtml(row.name)}</td><td>${money(row.repair)}</td><td>${money(row.refurb)}</td><td>${money(row.fresh)}</td></tr>`).join("")}<tr><th>Flota completa</th><th>${money(totals.repair)}</th><th>${money(totals.refurb)}</th><th>${money(totals.fresh)}</th></tr></tbody></table></div>
+    <details><summary>Cómo se calculó</summary><p>Costo total = compra + costo mensual × meses. El plan atiende primero la prioridad operativa y, dentro de cada nivel, el mayor ahorro potencial por estación. Solo renueva cuando reduce el costo total y cabe en presupuesto.</p></details>
+    <p class="notice">${data.demo?"Ejemplo con datos y precios ficticios. ":"Estimación con los datos capturados. "}El partner Dell Gold o Authorized debe confirmar precio, disponibilidad, instalación y garantía.</p>
+    <label id="decision">¿Acepta cotizar con un partner?<select id="feedback"><option value="">Pendiente</option><option value="Sí">Sí, acepta cotizar</option><option value="No">No por ahora</option></select></label>
+    <div class="actions"><button class="button primary" id="download">Descargar solicitud</button><button class="button" id="print">Imprimir / PDF</button></div>
+  `;
+  byId("feedback").value = feedback;
+  byId("feedback").addEventListener("change",event=>{feedback=event.target.value;});
+  byId("download").addEventListener("click",download);
+  byId("print").addEventListener("click",()=>window.print());
+}
+function download(){
+  const text = [
+    "SWEETIE · SOLICITUD DE COTIZACIÓN PRELIMINAR",
+    "Destinatario: partner Dell Gold o Authorized",
+    "Empresa: "+data.company, "Sede: "+(data.city||"Por confirmar"),
+    "Caso: "+(data.demo?"simulado":"capturado"), "Moneda: MXN",
+    "Estado de aceptación: "+(feedback||"Pendiente"),
+    "Horizonte: "+report.period+" meses", "Presupuesto de compra: "+money(report.budget),
+    "Inversión estimada: "+money(report.spend), "Ahorro estimado: "+money(report.savings),
+    "Tiempo desde carga del caso: "+report.elapsed+" s al generar la propuesta",
+    "",...report.rows.flatMap(row=>[
+      row.name+" · "+row.qty+" estaciones · prioridad "+row.priority,
+      "Configuración requerida: "+(row.spec||"Por confirmar"),
+      "Plan: "+row.option+(row.replace && row.replace<row.qty ? "; reparar "+(row.qty-row.replace) : ""),
+      "Costo por estación en el horizonte: reparar "+money(row.repair)+", reacondicionado "+money(row.refurb)+", nuevo "+money(row.fresh),""
+    ]),
+    "Favor de confirmar configuración, stock, condición, garantía, instalación, impuestos y plazo de entrega."
+  ].join("\r\n");
+  const url = URL.createObjectURL(new Blob(["\ufeff",text],{type:"text/plain;charset=utf-8"}));
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = "Sweetie_Solicitud_Cotizacion.txt";
+  link.click();
+  setTimeout(()=>URL.revokeObjectURL(url),1000);
+}
+function analyse(){
+  showTab(false);
+  const form=byId("editor");
+  if (!form.reportValidity() || !data.company.trim() || data.profiles.some(profile=>!profile.name.trim())){
+    byId("edit-status").textContent = "Completa los datos requeridos y asigna un nombre a cada perfil.";
+    appendMessage("Para calcular la propuesta, necesito los datos requeridos de tu caso. Revisa los campos marcados y vuelve a intentar.");
+    return;
+  }
+  byId("edit-status").textContent = "";
+  report = {...calculate(data),elapsed:Math.round((Date.now()-startedAt)/1000)};
+  guideField = null;
+  renderReport();
+  byId("result-tab").disabled = false;
+  showTab(true);
+  appendMessage(report.replaced
+    ? "Empezaría por renovar "+report.replaced+" de "+report.totals.qty+" estaciones. La inversión estimada es "+money(report.spend)+" MXN y el ahorro frente a seguir reparando es "+money(report.savings)+" MXN a "+report.period+" meses. Revisa el desglose en la propuesta."
+    : "Con los datos capturados, recomiendo seguir reparando. Consulta en la propuesta cuánto cuesta cada alternativa y ajusta los supuestos si tienes datos más precisos.");
+}
+const prompts = {
+  company:"¿Cómo se llama el call center?",
+  budget:"¿Cuál es el presupuesto de compra en pesos mexicanos? Puedes escribir 900 mil o 1.2 millones.",
+  qty:"¿Cuántas estaciones tiene el primer perfil? Si hay más perfiles, puedes agregarlos en Datos del caso.",
+  repair:"¿Cuánto cuesta al mes mantener cada estación de ese perfil? Incluye paros si los conoces.",
+  refurb:"¿Cuánto cuesta comprar una estación Dell reacondicionada para ese perfil?",
+  fresh:"¿Cuánto cuesta comprar una estación Dell nueva para ese perfil?",
+  upkeep:"¿Cuál sería el costo mensual por estación reacondicionada? Usa 0 solo si corresponde a tu supuesto.",
+  freshUpkeep:"¿Cuál sería el costo mensual de mantenimiento por estación nueva?",
+  months:"¿En cuántos meses quieres comparar las alternativas? Elige entre 1 y 60."
+};
+function askNext(){
+  const first = data.profiles[0];
+  guideField = Object.keys(prompts).find(field=>(field in data?data[field]:first[field])==="") || null;
+  appendMessage(guideField ? prompts[guideField] : "Ya tienes datos para el primer perfil. Revisa el nombre, la prioridad y los requisitos en Datos del caso. Luego puedes agregar perfiles o generar la propuesta.");
+}
+function parseAmount(value){
+  const match = value.match(/\d[\d,.\s]*(?:\s*(?:millones|millón|millon|mil)\b)?/i);
+  if (!match) return null;
+  const raw = match[0].trim().replace(/\s+(?=\d)/g,"");
+  const scale = /mill/i.test(raw) ? 1000000 : /mil/i.test(raw) ? 1000 : 1;
+  const digits = raw.replace(/[^\d.,]/g,"");
+  const number = Number(scale>1 && /^\d+,\d{1,2}$/.test(digits) ? digits.replace(",",".") : digits.replace(/,/g,""));
+  return Number.isFinite(number) ? Math.round(number*scale) : null;
+}
+function capture(message){
+  const norm = message.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"");
+  if (/generar|calcular|ver propuesta|^cotizar$/.test(norm)){analyse();return;}
+  if (guideField){
+    const field = guideField;
+    const value = field==="company" ? message.slice(0,100) : parseAmount(message);
+    const min = ["repair","upkeep","freshUpkeep"].includes(field)?0:1;
+    const max = ({budget:1e9,qty:100000,months:60})[field] || 1e7;
+    if(field!=="company" && (value===null || value<min || value>max || /^\s*-/.test(message))){
+      appendMessage("Ese valor queda fuera del rango permitido. "+prompts[field]);
+      return;
+    }
+    if(field in data){data[field]=value;}else{data.profiles[0][field]=value;}
+    if (!data.profiles[0].name) data.profiles[0].name="Agentes de atención";
+    invalidate();persist();renderCase();showTab(false);askNext();return;
+  }
+  const captured = [];
+  const quantity = norm.match(/(?:^|[^\d.,-])(\d+)\s*(?:estaciones|equipos|puestos|computadoras)\b/);
+  const budget = norm.match(/presupuesto\s*(?:(?:es|de|maximo)\s*)*[:=]?\s*\$?\s*(\d[\d,.]*(?:\s*(?:millones|millon|mil)\b)?)/);
+  const months = norm.match(/(?:^|[^\d.,-])(\d+)\s*meses\b/);
+  if (quantity && Number(quantity[1])>0 && Number(quantity[1])<=100000) {
+    if(data.profiles.length===1){data.profiles[0].qty=Number(quantity[1]);captured.push(quantity[1]+" estaciones");}
+    else if (Number(quantity[1])!==data.profiles.reduce((sum,row)=>sum+Number(row.qty),0)){
+      appendMessage("El caso tiene varios perfiles. Ajusta el número de estaciones de cada perfil en Datos del caso.");
+    }
+  }
+  if (budget){
+    const amount = parseAmount(budget[1]);
+    if(amount>0 && amount<=1e9){data.budget=amount;captured.push("presupuesto de "+money(amount)+" MXN");}
+  }
+  if (months && Number(months[1])>0 && Number(months[1])<=60){data.months=Number(months[1]);captured.push(months[1]+" meses de evaluación");}
+  if(captured.length){
+    invalidate();persist();renderCase();showTab(false);
+    appendMessage("Actualicé el caso con "+captured.join(", ")+". Puedes completar los datos por perfil o generar la propuesta.");
+    return;
+  }
+  if(/ahorro|costo total|formula/.test(norm)){
+    appendMessage("Para cada estación sumo el precio de compra y los costos mensuales del horizonte elegido. El ahorro es la diferencia frente a seguir reparando durante esos mismos meses.");
+    return;
+  }
+  if(/partner|garantia|inventario/.test(norm)){
+    appendMessage("El partner Dell Gold o Authorized revisa la solicitud y confirma disponibilidad, precio, garantía e instalación. Puedes descargar la solicitud desde la propuesta.");
+    return;
+  }
+  appendMessage("Puedo capturar presupuesto, número de estaciones y meses, o guiarte con los campos que faltan. Prueba «Presupuesto de 900 mil para 100 estaciones» o selecciona Guiarme paso a paso.");
+}
+byId("editor").addEventListener("input",event=>{
+  const target=event.target;
+  const row=target.closest("[data-index]");
+  if(row){data.profiles[Number(row.dataset.index)][target.dataset.field]=target.value;}
+  else if(target.name){data[target.name]=target.value;}
+  invalidate();persist();
+});
+byId("editor").addEventListener("submit",event=>{event.preventDefault();analyse();});
+byId("profiles").addEventListener("click",event=>{
+  const button=event.target.closest("[data-remove]");
+  if(!button || data.profiles.length===1)return;
+  data.profiles.splice(Number(button.closest("[data-index]").dataset.index),1);
+  invalidate();persist();renderCase();
+});
+byId("add").addEventListener("click",()=>{
+  data.profiles.push(blankProfile());invalidate();persist();renderCase();
+  byId("profile-"+(data.profiles.length-1)).focus();
+});
+byId("chat-form").addEventListener("submit",event=>{
+  event.preventDefault();
+  const field=byId("message");
+  const message=field.value.trim();
+  if(!message)return;
+  field.value="";appendMessage(message,"user");capture(message);
+});
+byId("guide").addEventListener("click",()=>{showTab(false);askNext();byId("message").focus();});
+byId("analyse").addEventListener("click",analyse);
+byId("edit-tab").addEventListener("click",()=>showTab(false));
+byId("result-tab").addEventListener("click",()=>{if(report)showTab(true);});
+byId("reset").addEventListener("click",()=>{
+  if (!data.demo && data.company && !window.confirm("¿Reemplazar el caso actual por uno nuevo?")) return;
+  replaceCase(freshCase(),"Hola, soy Sweetie. ¿Cómo se llama el call center que quiere renovar sus equipos?");
+  guideField = "company";
+});
+byId("demo").addEventListener("click",()=>{
+  if (!data.demo && data.company && !window.confirm("¿Reemplazar el caso actual por el ejemplo?")) return;
+  replaceCase(demo(),"Cargué un ejemplo de 100 estaciones en Naucalpan. Puedes cambiar sus datos o generar la propuesta para ver qué conviene renovar primero.");
+});
+renderCase();
+showTab(false);
+appendMessage(data.demo
+  ? "Hola, soy Sweetie. Cargué un caso simulado de 100 estaciones en Naucalpan. Genera la propuesta para ver qué conviene renovar o abre un caso nuevo para usar tus datos."
+  : "Hola, soy Sweetie. Puedes retomar tu caso guardado, ajustar los perfiles o generar la propuesta.");
+</script>
+</body>
+</html>
+
