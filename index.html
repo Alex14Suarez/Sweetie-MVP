@@ -16,9 +16,10 @@ input,select,textarea{width:100%;border:1px solid #d8cde6;color:var(--ink);borde
 .quote-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin:14px 0}.quote-card{display:flex;flex-direction:column;border:1px solid var(--line);border-radius:14px;overflow:hidden;min-width:0}.summary-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-top:14px}.summary-item{border-radius:11px;background:#f3edff;padding:9px 10px;color:var(--plum);overflow-wrap:anywhere}.summary-item span{display:block;font-size:11px}.summary-item strong{font-size:clamp(15px,2.1vw,24px);letter-spacing:-.045em}.pending{background:#fff2df;color:#773914;border-radius:10px;padding:9px 11px;font-size:13px}.product-info .lines{font-size:12px;color:var(--muted);margin:8px 0 4px;padding-left:16px}.quote-card .price{margin:2px 0 3px}.summary-grid+.quote-grid{margin-top:12px}.product-art{height:152px;display:grid;place-items:center;position:relative;background:radial-gradient(ellipse at 48% 75%,#e0caff,#f7f1ff 75%)}.product-art.new{background:radial-gradient(ellipse at 48% 75%,#d8f0bd,#f1f7e6 78%)}.product-art img{width:110px;height:125px;object-fit:contain;filter:drop-shadow(8px 13px 7px #29193738)}.product-art .tag{position:absolute;left:8px;top:8px;background:white;color:#42266d}.product-info{padding:11px 12px 13px;display:flex;flex:1;flex-direction:column;align-items:flex-start}.product-info h4{font-size:15px;line-height:1.2;margin:0 0 3px;letter-spacing:-.025em}.model{color:var(--muted);font-size:12px;margin:0 0 7px}.price{font-size:clamp(19px,2.3vw,30px);letter-spacing:-.05em;line-height:1.05;font-weight:800;overflow-wrap:anywhere}.price small{font-size:11px;letter-spacing:0}.product-info a{font-size:11px;margin-top:6px}.scroll{overflow:auto}table{border-collapse:collapse;width:100%;min-width:365px;font-size:12px;text-align:left}th,td{padding:8px 6px;border-bottom:1px solid var(--line);vertical-align:top}th{color:var(--muted)}td small{display:block;color:var(--muted)}.report-note{font-size:12px;color:var(--muted);margin:12px 0}.quote-actions{display:flex;flex-wrap:wrap;gap:7px;margin-top:8px}.quote-actions button{font-size:13px}.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%)}[hidden]{display:none!important}
 @media(max-width:790px){.workspace{grid-template-columns:1fr}.chat-log{height:200px}.hero h1{font-size:clamp(42px,7.5vw,61px)}}@media(max-width:520px){.wrap{width:calc(100% - 24px)}.brand small{display:none}.mast button{font-size:12px;padding:7px 8px}.hero{grid-template-columns:1fr;margin-top:13px}.hero-copy{padding-bottom:8px}.hero-art{min-height:153px}.hero-art::before{width:130px}.hero-art img{height:116px}.hero-art figcaption{right:10px;bottom:8px}.fields.three{grid-template-columns:repeat(2,minmax(0,1fr))}.body{padding:12px}.quote-grid{gap:7px}.product-info{padding:8px}.product-art{height:123px}.product-art img{height:97px}.price{font-size:19px}}@media(prefers-reduced-motion:no-preference){button{transition:background .16s,border-color .16s}}@media print{header,.hero,#chat,.tabs,#editor,.quote-actions,.product-info button{display:none!important}.wrap{width:100%}.workspace{display:block}.panel{border:0;box-shadow:none}}
 </style>
+<script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.2/dist/umd/supabase.min.js"></script><script defer src="sweetie-db.js"></script>
 </head>
 <body>
-<header><div class="wrap mast"><div class="brand"><span class="mark" aria-hidden="true">✦</span>Sweetie <small>SUGAR CUBE</small></div><div class="actions"><button id="demo" class="quiet">Cargar ejemplo</button><button id="reset">Nuevo caso</button></div></div></header>
+<header><div class="wrap mast"><div class="brand"><span class="mark" aria-hidden="true">✦</span>Sweetie <small>SUGAR CUBE</small></div><div class="actions"><a id="account-link" href="cuenta.html#login" style="align-self:center;color:#512b91;font-weight:700;padding:6px">Mi cuenta</a><a href="cuenta.html#equipos" style="align-self:center;color:#512b91;font-weight:700;padding:6px">Equipos disponibles</a><button id="demo" class="quiet">Cargar ejemplo</button><button id="reset">Nuevo caso</button></div></div></header>
 <main class="wrap">
   <section class="hero" aria-labelledby="page-title">
     <div class="hero-copy"><p class="overline">Cotizador para call centers y BPO</p><h1 id="page-title">Cotiza tus próximas estaciones.</h1><p>Cotiza computadoras de escritorio, laptops y estaciones con accesorios según el inventario y presupuesto.</p></div>
@@ -121,7 +122,7 @@ function showTab(results){
   id("edit-tab").setAttribute("aria-pressed",!results);
   id("result-tab").setAttribute("aria-pressed",results);
 }
-function invalidate(){report=null;id("result-tab").disabled=true;}
+function invalidate(){quoteRequest++;report=null;id("result-tab").disabled=true;}
 function say(text,sender="assistant"){
   const message=document.createElement("div");
   message.className="msg "+sender;
@@ -237,10 +238,27 @@ function renderResults(){
     (extras?'<div class="accessory-list"><h4>Accesorios incluidos</h4><div class="scroll"><table><thead><tr><th>Accesorio</th><th>Cantidad</th><th>Precio unitario</th><th>Subtotal</th></tr></thead><tbody>'+extras+'</tbody></table></div></div>':'')+
     (pending?'<p class="pending">'+pending+' '+(pending===1?'equipo pendiente':'equipos pendientes')+' por disponibilidad de equipos o accesorios, o por presupuesto.</p>':'')+
     '<div class="scroll"><table><thead><tr><th>Perfil</th><th>Solicitados</th><th>Cotizados</th><th>Pendientes</th></tr></thead><tbody>'+rows+'</tbody></table></div>'+
-    '<p class="report-note">Inventario y precios simulados en MXN. El partner debe confirmar disponibilidad, precio final, requisitos adicionales y garantía.</p>'+
-    '<div class="quote-actions"><button class="primary" data-download '+(report.assigned?"":"disabled")+'>Descargar solicitud</button><button data-print>Imprimir / PDF</button></div>';
+    '<p class="report-note">'+(report.userId?"Inventario de Sweetie":"Inventario local de demostración")+' · Precios iniciales de prueba en MXN. El partner debe confirmar disponibilidad, precio final, requisitos adicionales y garantía.</p>'+
+    '<div class="quote-actions"><button class="primary" data-download '+(report.assigned?"":"disabled")+'>Descargar solicitud</button><button data-print>Imprimir / PDF</button>'+(report.userId&&report.assigned?'<button data-save>Guardar en mi perfil</button>':'')+'</div><p class="report-note" role="status" id="save-status"></p>';
 }
-function generate(scroll=false){
+let quoteRequest=0;
+async function getQuoteInventory(){
+  const db=window.sweetieDb;
+  if(!db)return null;
+  const auth=await db.auth.getSession();
+  if(auth.error)throw auth.error;
+  const user=auth.data.session?.user;
+  if(!user)return null;
+  const [lots,parts]=await Promise.all([
+    db.from("sweetie_equipment").select("product,tier,ram,ssd,stock,price").order("id"),
+    db.from("sweetie_accessories").select("accessory,name,stock,price")
+  ]);
+  if(lots.error||parts.error)throw lots.error||parts.error;
+  const peripherals=Object.fromEntries(parts.data.map(({accessory,...row})=>[accessory,row]));
+  if(Object.keys(accessories).some(key=>!peripherals[key]))throw Error("Inventario incompleto");
+  return {userId:user.id,lots:lots.data,peripherals};
+}
+async function generate(scroll=false){
   showTab(false);
   const editor=id("editor");
   for(const section of editor.querySelectorAll("details")){
@@ -252,7 +270,16 @@ function generate(scroll=false){
     return;
   }
   id("warning").textContent="";
-  report=calculate(data);
+  const request=++quoteRequest;
+  const input=structuredClone(data);
+  try{
+    const cloud=await getQuoteInventory();
+    if(request!==quoteRequest)return;
+    report=cloud?{...calculate(input,cloud.lots,cloud.peripherals),userId:cloud.userId,id:crypto.randomUUID()}:calculate(input);
+  }catch{
+    if(request===quoteRequest){id("warning").textContent="No pude consultar el inventario. Intenta de nuevo.";say("No pude consultar el inventario de tu cuenta. Intenta de nuevo.");}
+    return;
+  }
   guided=null;
   renderResults();
   id("result-tab").disabled=false;
@@ -261,6 +288,23 @@ function generate(scroll=false){
     ? "Coticé "+report.assigned+" de "+report.requested+" equipos por "+money(report.total)+" MXN con el inventario disponible. "+(report.assigned<report.requested?"En el desglose verás cuáles quedan pendientes.":"Puedes revisar el desglose y descargar la solicitud.")
     : "Con estos datos, ningún equipo pudo asignarse dentro del inventario y el presupuesto. En el desglose puedes ver cuántos quedan pendientes.");
   if(scroll&&window.matchMedia("(max-width:790px)").matches)id("case-title").scrollIntoView({block:"start"});
+}
+async function saveQuote(button){
+  const current=report;
+  if(!current?.userId||!current.assigned||!window.sweetieDb)return;
+  const status=id("save-status");
+  button.disabled=true;
+  try{
+    const auth=await window.sweetieDb.auth.getUser();
+    if(auth.error||auth.data.user?.id!==current.userId)throw Error("Sesión vencida");
+    const payload={id:current.id,user_id:current.userId,company:data.company.trim(),budget:current.budget,total:current.total,requested:current.requested,assigned:current.assigned,details:{city:data.city,profiles:current.profiles,accessories:current.extras}};
+    const result=await window.sweetieDb.from("sweetie_quotes").insert(payload);
+    if(result.error&&result.error.code!=="23505")throw result.error;
+    status.textContent="Cotización guardada. Puedes consultarla en Mi perfil.";
+  }catch{
+    status.textContent="No se pudo guardar. Revisa tu sesión e inténtalo de nuevo.";
+    button.disabled=false;
+  }
 }
 function download(){
   if(!report?.assigned)return;
@@ -455,6 +499,12 @@ function replaceCase(next,message){
   return true;
 }
 id("hero-image").src=catalog.fresh.image;
+window.addEventListener("DOMContentLoaded",()=>{
+  if(!window.sweetieDb)return;
+  void window.sweetieDb.auth.getSession().then(({data})=>{
+    if(data.session)id("account-link").href="cuenta.html#perfil";
+  });
+});
 id("editor").addEventListener("input",event=>{
   const input=event.target;
   const section=input.closest("[data-index]");
@@ -484,6 +534,7 @@ id("review").addEventListener("click",event=>{
   if(!button)return;
   if(button.hasAttribute("data-download"))download();
   if(button.hasAttribute("data-print"))window.print();
+  if(button.hasAttribute("data-save"))void saveQuote(button);
 });
 id("chat-form").addEventListener("submit",event=>{
   event.preventDefault();const field=id("message");const message=field.value.trim();
